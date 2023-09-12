@@ -5,16 +5,26 @@ Class {
 }
 
 { #category : #accessing }
+XCTraceAbstractObject >> buildCommand [
+	
+	self subclassResponsibility
+]
+
+{ #category : #accessing }
 XCTraceAbstractObject >> execXCTrace [
 
-	| command |
+	| command outputString |
 
 	command := OSSUnixSubprocess new
 		shellCommand: self buildCommand;
 		redirectStdout;
 		redirectStderr;
 	 	runAndWaitOnExitDo: [ :process :outString :errString  |
-			"errString inspect.
-			outString inspect"  ].
+			errString 
+				ifNotEmpty: [ 
+					outputString := 'Error'.
+					errString inspect ]
+				ifEmpty: [ outputString := outString ] ].
 	command closeAndCleanStreams.
+	^ outputString
 ]

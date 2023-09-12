@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'templateName',
 		'pharoAppFilename',
-		'imageFilename'
+		'imageFilename',
+		'evalExpression'
 	],
 	#category : #XCTraceQuerier
 }
@@ -25,11 +26,27 @@ XCTraceRecorder >> buildCommand [
 	^ String streamContents: [ : stream |
 		stream
 			<< 'xctrace record --template ';
-			<< self templateName;
-			<< '--target-stdout - --launch --  ';
+			<< self templateName surroundedBySingleQuotes;
+			<< ' --target-stdout - --launch --  ';
 			<< self pharoAppFilename;
 			<< ' --logLevel=4';
-			<< self imageFilename ]
+			<< ' -headless ';
+			<< self imageFilename;
+			<< ' --no-default-preferences';
+			<< ' eval ';
+			<< self evalExpression ]
+]
+
+{ #category : #accessing }
+XCTraceRecorder >> evalExpression [
+
+	^ evalExpression
+]
+
+{ #category : #accessing }
+XCTraceRecorder >> evalExpression: anObject [
+
+	evalExpression := anObject
 ]
 
 { #category : #accessing }
