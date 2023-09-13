@@ -12,12 +12,16 @@ Class {
 
 { #category : #export }
 XCTraceRecorder class >> exampleRecord [
+	"Requires a Pharo.image in a pharo-test-image directory in the current working directory"
 
-	^ self new
+	| imageLocation |
+	imageLocation := 'pharo-test-image/'.
+	^ XCTraceRecorder new
 		templateName: 'Time Profiler';
-		imageFilename: 'Launch_Pharo.app_2023-09-12_15.54.22_87E6E450.trace';
-		pharoAppFilename: '... /Pharo.app';
-		record
+		imageFilename: imageLocation , 'Pharo.image';
+		pharoAppFilename: imageLocation , 'Pharo.app';
+		evalExpression: '5000 factorial';
+		execXCTrace.
 ]
 
 { #category : #accessing }
@@ -30,7 +34,7 @@ XCTraceRecorder >> buildCommand [
 			<< ' --target-stdout - --launch --  ';
 			<< self pharoAppFilename;
 			<< ' --logLevel=4';
-			<< ' -headless ';
+			<< ' --headless ';
 			<< self imageFilename;
 			<< ' --no-default-preferences';
 			<< ' eval ';

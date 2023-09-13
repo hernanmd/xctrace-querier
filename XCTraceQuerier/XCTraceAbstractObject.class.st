@@ -1,6 +1,9 @@
 Class {
 	#name : #XCTraceAbstractObject,
 	#superclass : #Object,
+	#instVars : [
+		'traceFilename'
+	],
 	#category : #XCTraceQuerier
 }
 
@@ -11,20 +14,39 @@ XCTraceAbstractObject >> buildCommand [
 ]
 
 { #category : #accessing }
-XCTraceAbstractObject >> execXCTrace [
+XCTraceAbstractObject >> execCmd: aShellCommand [
+	"  "
 
 	| command outputString |
 
 	command := OSSUnixSubprocess new
-		shellCommand: self buildCommand;
+		shellCommand: aShellCommand;
 		redirectStdout;
-		redirectStderr;
-	 	runAndWaitOnExitDo: [ :process :outString :errString  |
-			errString 
-				ifNotEmpty: [ 
-					outputString := 'Error'.
-					errString inspect ]
-				ifEmpty: [ outputString := outString ] ].
+		redirectStderr; 
+	   runAndWaitOnExitDo: [ :process :outString :errString  |
+        errString 
+			ifNotEmpty: [ 
+				outputString := 'Error'.
+				errString inspect ]
+			ifEmpty: [ outputString := outString ] ].
 	command closeAndCleanStreams.
-	^ outputString
+	^ outputString trimBoth
+]
+
+{ #category : #accessing }
+XCTraceAbstractObject >> execXCTrace [
+
+	^ self execCmd: self buildCommand
+]
+
+{ #category : #accessing }
+XCTraceAbstractObject >> traceFilename [
+
+	^ traceFilename
+]
+
+{ #category : #accessing }
+XCTraceAbstractObject >> traceFilename: anObject [
+
+	traceFilename := anObject
 ]

@@ -1,6 +1,6 @@
 Class {
 	#name : #XCTracerQuerierTest,
-	#superclass : #TestCase,
+	#superclass : #XCTracerTest,
 	#instVars : [
 		'querier'
 	],
@@ -24,7 +24,10 @@ XCTracerQuerierTest >> setUp [
 
 	super setUp.
 	querier := XCTraceQuerier new
-		traceFileReference: '';
+		imageFilename: self imageLocation basenameWithIndicator , 'Pharo.image';
+		pharoAppFilename: self imageLocation basenameWithIndicator , 'Pharo.app';	
+		templateName: 'Time Profiler';
+		evalExpression: '5000 factorial';
 		xmlFilename: 'output.xml';
 		yourself.
 
@@ -36,5 +39,5 @@ XCTracerQuerierTest >> testBuildCommand [
 
 	self 
 		assert: self querier buildCommand
-		equals: ''
+		equals: 'xctrace record --template ''Time Profiler'' --target-stdout - --launch --  pharo-test-image/Pharo.app --logLevel=4 --headless pharo-test-image/Pharo.image --no-default-preferences eval 5000 factorial'
 ]

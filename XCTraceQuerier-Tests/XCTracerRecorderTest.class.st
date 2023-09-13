@@ -1,6 +1,6 @@
 Class {
 	#name : #XCTracerRecorderTest,
-	#superclass : #TestCase,
+	#superclass : #XCTracerTest,
 	#instVars : [
 		'recorder'
 	],
@@ -24,8 +24,8 @@ XCTracerRecorderTest >> setUp [
 
 	super setUp.
 	self recorder: (XCTraceRecorder new
-		imageFilename: 'pharo-test-image/Pharo.image';
-		pharoAppFilename: 'pharo-test-image/pharo-vm/Pharo.app';
+		imageFilename: (self imageLocation basenameWithIndicator , 'Pharo.image');
+		pharoAppFilename: (self imageLocation basenameWithIndicator , 'pharo-vm/Pharo.app');
 		templateName: 'Time Profiler';
 		evalExpression: '''5000 factorial''';
 		yourself)
@@ -45,14 +45,15 @@ XCTracerRecorderTest >> testBuildCommand [
 
 	self 
 		assert: self recorder buildCommand
-		equals: 'xctrace record --template ''Time Profiler'' --target-stdout - --launch --  pharo-test-image/pharo-vm/Pharo.app --logLevel=4 -headless pharo-test-image/Pharo.image eval ''5000 factorial'''
+		equals: 'xctrace record --template ''Time Profiler'' --target-stdout - --launch --  pharo-test-image/pharo-vm/Pharo.app --logLevel=4 --headless pharo-test-image/Pharo.image --no-default-preferences eval ''5000 factorial'''
 ]
 
 { #category : #tests }
 XCTracerRecorderTest >> testExecXCTrace [
 
+	| executionOutput |
+	executionOutput := self recorder execXCTrace.
+	self assert: (executionOutput beginsWith: 'Starting recording').
+	self assert: (executionOutput endsWith: '.trace')
 
-	self 
-		assert: self recorder execXCTrace
-		equals: ''
 ]

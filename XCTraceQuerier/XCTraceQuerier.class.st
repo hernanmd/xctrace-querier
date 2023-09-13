@@ -1,11 +1,6 @@
 Class {
 	#name : #XCTraceQuerier,
-	#superclass : #XCTraceAbstractObject,
-	#instVars : [
-		'traceFileReference',
-		'inputTraceFilename',
-		'xmlFilename'
-	],
+	#superclass : #XCTraceExporter,
 	#category : #XCTraceQuerier
 }
 
@@ -13,39 +8,32 @@ Class {
 XCTraceQuerier class >> exampleExport [
 
 	^ self new
-		inputTraceFilename: 'Launch_Pharo.app_2023-09-12_15.54.22_87E6E450.trace';
+		traceFilename: 'Launch_Pharo.app_2023-09-13_13.43.38_28DAFFF5.trace';
 		xmlFilename: 'trace_times.xml';
 		timeSamples
 
 ]
 
 { #category : #accessing }
-XCTraceQuerier >> buildCommand [
+XCTraceQuerier >> buildExportCommand [
 
 	^ String streamContents: [ : stream |
 		stream
-			<< 'xctrace export --input ';
-			<< self traceFileReference fullName;
+			<< super buildExportCommand;
 			<< ' --xpath ';
-			<< self xPathTimeSampleQuery;
-			<< ' --output';
-			<< self xmlFilename ]
+			<< self xPathTimeProfileQuery surroundedBySingleQuotes ]
 ]
 
 { #category : #accessing }
-XCTraceQuerier >> inputTraceFilename [
+XCTraceQuerier >> execXCTrace [
+	" Answer the output .trace file name"
 
-	^ inputTraceFilename
+	super execXCTrace.
+	^ self execCmd: self buildExportCommand
 ]
 
 { #category : #accessing }
-XCTraceQuerier >> inputTraceFilename: anObject [
-
-	inputTraceFilename := anObject
-]
-
-{ #category : #accessing }
-XCTraceQuerier >> readXML [
+XCTraceQuerier >> parseXML [
 
 	^ XMLDOMParser parse: self xmlFilename asFileReference.
 ]
@@ -54,19 +42,7 @@ XCTraceQuerier >> readXML [
 XCTraceQuerier >> timeSamples [
 	"Answer a <Collection> of <XMLElement> representing the receiver's XML sample times"
 
-	^ self readXML xpath: '/trace-query-result/node/row'
-]
-
-{ #category : #accessing }
-XCTraceQuerier >> traceFileReference [
-
-	^ traceFileReference
-]
-
-{ #category : #accessing }
-XCTraceQuerier >> traceFileReference: anObject [
-
-	traceFileReference := anObject
+	^ self parseXML xpath: '/trace-query-result/node/row'
 ]
 
 { #category : #accessing }
@@ -77,19 +53,13 @@ XCTraceQuerier >> xPathPharoPointOfInterest [
 ]
 
 { #category : #accessing }
+XCTraceQuerier >> xPathTimeProfileQuery [
+
+	^ '/trace-toc/run[@number="1"]/data/table[@schema="time-profile"]'
+]
+
+{ #category : #accessing }
 XCTraceQuerier >> xPathTimeSampleQuery [
 
 	^ '/trace-toc/run[@number="1"]/data/table[@schema="time-sample"]'
-]
-
-{ #category : #accessing }
-XCTraceQuerier >> xmlFilename [
-
-	^ xmlFilename
-]
-
-{ #category : #accessing }
-XCTraceQuerier >> xmlFilename: anObject [
-
-	xmlFilename := anObject
 ]
